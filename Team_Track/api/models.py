@@ -1,13 +1,21 @@
 from django.db import models
+from django.contrib.auth.hashers import make_password
 
 # Create your models here.
 class User(models.Model):
     name = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
     password = models.CharField(max_length=300)
-    roll = models.CharField(max_length=50)
+    roll = models.CharField(max_length=50, default='not_admin')
 
     def __str__(self):
-        return self.name    
+        return self.name
+    
+    @classmethod
+    def email_exists(cls, email):
+        return cls.objects.filter(email=email).exists()
+
+
 
 class Employee(models.Model):
     name = models.CharField(max_length=100)
