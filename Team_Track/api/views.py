@@ -10,32 +10,34 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from .models import Employee, Customer, User
 from .serializer import EmployeeSerializer, CustomerSerializer, UserSerializer
+import json
 
 
 # =========================== Register Section ============================
 @csrf_exempt
 def register_user(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         print("++++++++++++++++++++++++++++++++++++++++++++++++++")
-        data = request.POST
-        print(data)
-        name = data.get('name')
-        email = data.get('email')
-        password = data.get('password')
+        try:
+            data = json.loads(request.body)  # Parse JSON data
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data."}, status=400)
 
+        name = data.get("name")
+        email = data.get("email")
+        password = data.get("password")
         print(name)
-
 
         # Check if email already exists
         if User.email_exists(email):
-            return JsonResponse({'error': 'Email already exists.'}, status=400)
+            return JsonResponse({"error": "Email already exists."}, status=400)
 
         # Hash the password and create the user
         hashed_password = make_password(password)
         user = User.objects.create(name=name, email=email, password=hashed_password)
-        return JsonResponse({'message': 'User registered successfully.'}, status=201)
+        return JsonResponse({"message": "User registered successfully."}, status=201)
 
-    return JsonResponse({'error': 'Invalid request method.'}, status=405)
+    return JsonResponse({"error": "Invalid request method."}, status=405)
 
 
 # =========================== Employee Section ============================
@@ -46,7 +48,7 @@ class add_employee(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -58,7 +60,7 @@ def view_all_employee(request):
 
 
 # Update Employee data
-@api_view(['PUT'])
+@api_view(["PUT"])
 def update_employee(request, pk):
     employee = get_object_or_404(Employee, pk=pk)
     serializer = EmployeeSerializer(employee, data=request.data)
@@ -66,7 +68,6 @@ def update_employee(request, pk):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 # =========================== Customer Section ============================
@@ -77,7 +78,7 @@ class add_customer(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -88,7 +89,7 @@ def view_all_customer(request):
     return JsonResponse(serializer.data, safe=False)
 
 
-@api_view(['PUT'])
+@api_view(["PUT"])
 def update_customer(request, pk):
     customer = get_object_or_404(Employee, pk=pk)
     serializer = CustomerSerializer(customer, data=request.data)
@@ -96,5 +97,3 @@ def update_customer(request, pk):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
