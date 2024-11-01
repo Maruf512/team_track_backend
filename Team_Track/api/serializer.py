@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Add_Employee, Add_Customer, Products, Sell_Invoice, Invoice_Challan, Pay_Employee, Cash_Memo
+from .models import User, Employee, Customer, Products, Sell_Invoice, Invoice_Challan, Pay_Employee, Cash_Memo
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -8,15 +8,15 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class Add_EmployeeSerializer(serializers.ModelSerializer):
+class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Add_Employee
+        model = Employee
         fields = '__all__'
 
 
-class Add_CustomerSerializer(serializers.ModelSerializer):
+class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Add_Customer
+        model = Customer
         fields = '__all__'
 
 

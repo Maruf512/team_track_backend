@@ -9,7 +9,7 @@ class User(models.Model):
     def __str__(self):
         return self.name    
 
-class Add_Employee(models.Model):
+class Employee(models.Model):
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
     mobile = models.CharField(max_length=50)
@@ -18,7 +18,7 @@ class Add_Employee(models.Model):
     def __str__(self):
         return self.name
 
-class Add_Customer(models.Model):
+class Customer(models.Model):
     name = models.CharField(max_length=100)
     company_name = models.CharField(max_length=100)
     address = models.CharField(max_length=100)
