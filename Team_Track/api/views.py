@@ -4,27 +4,27 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
-from django.core.validators import validate_email
+from django.contrib.auth.hashers import check_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from .models import Employee, Customer, User
 from .serializer import EmployeeSerializer, CustomerSerializer, UserSerializer
+import json
 
 
 # =========================== Register Section ============================
 @csrf_exempt
 def register_user(request):
     if request.method == 'POST':
-        print("++++++++++++++++++++++++++++++++++++++++++++++++++")
-        data = request.POST
-        print(data)
+        try:
+            data = json.loads(request.body)  # Parse JSON data
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data.'}, status=400)
+        
         name = data.get('name')
         email = data.get('email')
         password = data.get('password')
-
-        print(name)
-
 
         # Check if email already exists
         if User.email_exists(email):
@@ -33,9 +33,39 @@ def register_user(request):
         # Hash the password and create the user
         hashed_password = make_password(password)
         user = User.objects.create(name=name, email=email, password=hashed_password)
+        user.save()
         return JsonResponse({'message': 'User registered successfully.'}, status=201)
 
     return JsonResponse({'error': 'Invalid request method.'}, status=405)
+
+
+# =========================== Login Section ============================
+@csrf_exempt
+def login_user(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            password = data.get('password')
+
+            if not email or not password:
+                return JsonResponse({'error': 'email and password are required.'}, status=400)
+
+            try:
+                user = User.objects.get(email=email)
+                if check_password(password, user.password):
+                    response = JsonResponse({'message': 'Login successful'}, status=200)
+                    return response
+                else:
+                    return JsonResponse({'error': 'Invalid password'}, status=400)
+
+            except User.DoesNotExist:
+                return JsonResponse({'error': 'Invalid username'}, status=400)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 
 # =========================== Employee Section ============================

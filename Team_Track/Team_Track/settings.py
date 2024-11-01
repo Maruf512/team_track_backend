@@ -61,6 +61,10 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+# Session settings
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = False  # Set to True for HTTPS
+
 
 ROOT_URLCONF = 'Team_Track.urls'
 

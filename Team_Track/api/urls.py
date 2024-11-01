@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import register_user, add_employee, view_all_employee, add_customer, view_all_customer, update_customer, update_employee
+from .views import register_user, login_user, add_employee, view_all_employee, add_customer, view_all_customer, update_customer, update_employee
 
 
 urlpatterns = [
@@ -14,6 +14,7 @@ urlpatterns = [
     path('customer/update/<int:pk>/', update_customer, name="update_customer"),
 
     path('register/', register_user, name="register_user"),
+    path('login/', login_user, name="login_user"),
 
 
 ]
