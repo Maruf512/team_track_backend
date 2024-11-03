@@ -5,11 +5,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import check_password
-from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from .models import Employee, Customer, User
-from .serializer import EmployeeSerializer, CustomerSerializer, UserSerializer
+from .serializer import EmployeeSerializer, CustomerSerializer
 import json
 
 
@@ -81,10 +80,24 @@ class add_employee(APIView):
 
 
 # View All Employee
-def view_all_employee(request):
+def view_all_employee(request, pk):
     query = Employee.objects.all()
-    serializer = EmployeeSerializer(query, many=True)
-    return JsonResponse(serializer.data, safe=False)
+    limit = 10
+    offset = (pk - 1) * limit        # offset (from) to (offset + 10)
+    number_of_pages = len(query) / limit
+
+    if offset + limit > len(query):
+        to_value = offset + (len(query) - offset)
+    else:
+        to_value = offset + limit
+    
+    filter_records = query[offset:to_value]
+
+    if isinstance(number_of_pages, float):
+        number_of_pages = int(number_of_pages) + 1
+
+    serializer = EmployeeSerializer(filter_records, many=True)
+    return JsonResponse([{"total_page": number_of_pages}] + serializer.data, safe=False)
 
 
 # Update Employee data
@@ -97,6 +110,12 @@ def update_employee(request, pk):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+# Delete Employee
+def delete_employee(request, pk):
+    employee = get_object_or_404(Employee, pk=pk)
+    employee.delete()
+    return JsonResponse({'message': 'Removed employee from database.'}, status=201)
 
 
 # =========================== Customer Section ============================
@@ -118,6 +137,7 @@ def view_all_customer(request):
     return JsonResponse(serializer.data, safe=False)
 
 
+# Update Customer data
 @api_view(['PUT'])
 def update_customer(request, pk):
     customer = get_object_or_404(Employee, pk=pk)
@@ -128,3 +148,7 @@ def update_customer(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+def delete_customer(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    customer.delete()
+    return JsonResponse({'message': 'Removed customer from database.'}, status=201)

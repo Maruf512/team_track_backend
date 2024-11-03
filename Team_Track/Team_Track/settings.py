@@ -66,6 +66,15 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_COOKIE_SECURE = False  # Set to True for HTTPS
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10  # Number of items per page
+}
+
+
+
+
+
 ROOT_URLCONF = 'Team_Track.urls'
 
 TEMPLATES = [
