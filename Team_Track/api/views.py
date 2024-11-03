@@ -9,6 +9,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 from .models import Employee, Customer, User
 from .serializer import EmployeeSerializer, CustomerSerializer, UserSerializer
+import json
 
 
 # =========================== Register Section ============================
