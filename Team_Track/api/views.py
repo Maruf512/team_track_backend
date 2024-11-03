@@ -16,14 +16,14 @@ import json
 @csrf_exempt
 def register_user(request):
     if request.method == "POST":
-        print("++++++++++++++++++++++++++++++++++++++++++++++++++")
-        data = request.POST
-        print(data)
+        try:
+            data = json.loads(request.body)  # Parse JSON data
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON data."}, status=400)
+
         name = data.get("name")
         email = data.get("email")
         password = data.get("password")
-
-        print(name)
 
         # Check if email already exists
         if User.email_exists(email):
@@ -97,8 +97,12 @@ def view_all_employee(request, pk):
     if isinstance(number_of_pages, float):
         number_of_pages = int(number_of_pages) + 1
 
-    serializer = EmployeeSerializer(filter_records, many=True)
-    return JsonResponse([{"total_page": number_of_pages}] + serializer.data, safe=False)
+        serializer = EmployeeSerializer(filter_records, many=True)
+        return JsonResponse(
+            [{"total_page": number_of_pages}] + serializer.data, safe=False
+        )
+
+    return JsonResponse({"message": "invalid page number. it hastobe > 0"})
 
 
 # Update Employee data
@@ -125,10 +129,29 @@ class add_customer(APIView):
 
 
 # View all Customer
-def view_all_customer(request):
-    query = Customer.objects.all()
-    serializer = CustomerSerializer(query, many=True)
-    return JsonResponse(serializer.data, safe=False)
+def view_all_customer(request, pk):
+    if pk > 0:
+        query = Customer.objects.all()
+        limit = 10
+        offset = (pk - 1) * limit  # offset (from) to (offset + 10)
+        number_of_pages = len(query) / limit
+
+        if offset + limit > len(query):
+            to_value = offset + (len(query) - offset)
+        else:
+            to_value = offset + limit
+
+        filter_records = query[offset:to_value]
+
+        if isinstance(number_of_pages, float):
+            number_of_pages = int(number_of_pages) + 1
+
+        serializer = CustomerSerializer(filter_records, many=True)
+        return JsonResponse(
+            [{"total_page": number_of_pages}] + serializer.data, safe=False
+        )
+
+    return JsonResponse({"message": "invalid page number. it hastobe > 0"})
 
 
 @api_view(["PUT"])
