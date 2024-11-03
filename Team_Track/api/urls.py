@@ -15,7 +15,7 @@ urlpatterns = [
 
     # Customer Routing
     path('customer/create/', add_customer.as_view(), name="add_customer"),
-    path('customer/view/', view_all_customer, name="view_all_customer"),
+    path('customer/view/<int:pk>/', view_all_customer, name="view_all_customer"),
     path('customer/update/<int:pk>/', update_customer, name="update_customer"),
     path('customer/delete/<int:pk>/', delete_customer, name="delete_customer"),
 
